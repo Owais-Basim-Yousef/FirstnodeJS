@@ -1,3 +1,5 @@
+const dns = require("dns");
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 require("dotenv").config();
 console.log("Loaded MONGO_URI?", Boolean(process.env.MONGO_URI));
 
@@ -14,6 +16,7 @@ async function start() {
     });
   } catch (err) {
     console.error("Startup failed:", err.message);
+    console.log(err);
     process.exit(1);
   }
 }

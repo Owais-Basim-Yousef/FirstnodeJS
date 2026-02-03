@@ -8,6 +8,14 @@ app.get("/", (req, res) => {
   res.json({ message: "API is running ✅" });
 });
 
+app.post("/debug-body", (req, res) => {
+  res.json({
+    contentType: req.headers["content-type"],
+    bodyType: typeof req.body,
+    body: req.body,
+  });
+});
+
 app.use("/api/users", usersRoutes);
 
 module.exports = app;
