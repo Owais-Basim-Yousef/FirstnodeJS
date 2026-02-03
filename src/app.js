@@ -1,5 +1,7 @@
 const express = require("express");
 const usersRoutes = require("./routes/users.routes");
+const authRoutes = require("./routes/auth.routes");
+
 
 const app = express();
 app.use(express.json());
@@ -17,5 +19,5 @@ app.post("/debug-body", (req, res) => {
 });
 
 app.use("/api/users", usersRoutes);
-
+app.use("/api/auth", authRoutes);
 module.exports = app;

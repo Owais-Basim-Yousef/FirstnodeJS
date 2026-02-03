@@ -3,10 +3,10 @@ const User = require("../models/User");
 // POST /api/users
 async function createUser(req, res) {
   try {
-    const { name, email, age } = req.body;
-    if (!name || !email) return res.status(400).json({ error: "name and email are required" });
+    const { name, email, password, age } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: "name, email and password are required" });
 
-    const user = await User.create({ name, email, age });
+    const user = await User.create({ name, email, password, age });
     return res.status(201).json(user);
   } catch (err) {
     // duplicate email error
