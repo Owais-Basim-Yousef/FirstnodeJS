@@ -14,7 +14,7 @@ const {
 router.post("/", createUser);
 
 // Protected routes
-router.get("/", auth, getUsers);
+router.get("/", getUsers);
 router.get("/:id", auth, getUserById);
 router.put("/:id", auth, updateUser);
 router.delete("/:id", auth, deleteUser);
