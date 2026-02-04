@@ -26,4 +26,10 @@ async function login(req, res) {
 
 }
 
-module.exports = {login};
+async function getMe(req, res) {
+  const user = await User.findById(req.user.userId); // req.user comes from token
+  return res.json(user);
+}
+
+
+module.exports = {login,getMe};
