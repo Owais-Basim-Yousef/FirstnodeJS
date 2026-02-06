@@ -3,6 +3,10 @@ const bcrypt = require("bcrypt")
 
 const userSchema = new mongoose.Schema(
   {
+    passwordResetToken: {type: String, select: false },
+    passwordResetExpires: {type: Date, select: false }, 
+
+    
     name: { type: String, required: true, trim: true, minlength: 2 },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, select: false},
