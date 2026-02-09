@@ -1,19 +1,44 @@
 const User = require("../models/User");
+const Stats = require("../models/Stats");
+
 
 // POST /api/users
 async function createUser(req, res) {
   try {
     const { name, email, password, age } = req.body;
-    if (!name || !email || !password) return res.status(400).json({ error: "name, email and password are required" });
+
+    if (!name || !email || !password)
+      return res.status(400).json({ error: "name, email and password are required" });
 
     const user = await User.create({ name, email, password, age });
-    return res.status(201).json(user);
+
+    // count real users in DB
+    const usersCount = await User.countDocuments();
+
+    // update stats table
+    await Stats.findOneAndUpdate(
+      { name: "global" },
+      { usersCount },
+      { upsert: true, new: true }
+    );
+
+    return res.status(201).json({
+      user,
+      usersCount
+    });
+
   } catch (err) {
-    // duplicate email error
-    if (err.code === 11000) return res.status(409).json({ error: "email already exists" });
-    return res.status(500).json({ error: "server error", details: err.message });
+    if (err.code === 11000)
+      return res.status(409).json({ error: "email already exists" });
+
+    return res.status(500).json({
+      error: "server error",
+      details: err.message
+    });
   }
 }
+
+
 
 // GET /api/users
 async function getUsers(req, res) {

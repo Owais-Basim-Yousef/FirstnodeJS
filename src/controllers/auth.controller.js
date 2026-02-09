@@ -13,14 +13,14 @@ async function forgotPassword(req, res) {
     // don’t reveal if user exists or not
     if (!user) return res.json({ message: "success" });
 
-    const rawToken = crypto.randomBytes(32).toString("hex");
-    const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
 
-    user.passwordResetToken = hashedToken;
-    user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+    user.passwordResetOTP = otpHash;
+    user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
     await user.save();
 
-    return res.json({ message: "success", resetToken: rawToken }); // dev/testing
+    return res.json({ message: "success", otp}); // dev/testing
   } catch (err) {
     return res.status(500).json({ error: "server error", details: err.message });
   }
@@ -28,24 +28,24 @@ async function forgotPassword(req, res) {
 
 async function resetPassword(req, res) {
   try {
-    const { token, newPassword } = req.body;
+    const { email, otp, newPassword } = req.body;
 
-    if (!token || !newPassword) {
-      return res.status(400).json({ error: "token and newPassword are required" });
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ error: "email, otp and newPassword are required" });
     }
 
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const otpHash = crypto.createHash("sha256").update(String(otp)).digest("hex");
 
     const user = await User.findOne({
-      passwordResetToken: hashedToken,
+      email,
+      passwordResetOTP: otpHash,
       passwordResetExpires: { $gt: new Date() },
     }).select("+password");
 
-    if (!user) return res.status(400).json({ error: "invalid or expired token" });
+    if (!user) return res.status(400).json({ error: "invalid or expired otp" });
 
     user.password = newPassword;
-
-    user.passwordResetToken = undefined;
+    user.passwordResetOTP = undefined;
     user.passwordResetExpires = undefined;
 
     await user.save();
@@ -55,6 +55,7 @@ async function resetPassword(req, res) {
     return res.status(500).json({ error: "server error", details: err.message });
   }
 }
+
 
 async function login(req, res) {
   try {
